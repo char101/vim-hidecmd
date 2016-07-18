@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include "MinHook.h"
+#include <regex>
 
 template <typename T>
 inline MH_STATUS MH_CreateHookApiEx(LPCWSTR pszModule, LPCSTR pszProcName, LPVOID pDetour, T** ppOriginal)
@@ -31,7 +32,23 @@ BOOL WINAPI DetourCreateProcess(LPCTSTR lpApplicationName,
                                 LPSTARTUPINFO lpStartupInfo,
                                 LPPROCESS_INFORMATION lpProcessInformation)
 {
-    lpStartupInfo->wShowWindow = SW_HIDE;
+    TCHAR buffer[32767];
+    bool hide = true;
+
+    if (GetEnvironmentVariable("HIDECMD_EXCLUDE", buffer, sizeof(buffer)) > 0)
+    {
+        hide = ! std::regex_search(lpCommandLine, std::regex(buffer));
+    }
+
+    if (GetEnvironmentVariable("HIDECMD_INCLUDE", buffer, sizeof(buffer)) > 0)
+    {
+        hide = std::regex_search(lpCommandLine, std::regex(buffer));
+    }
+
+    if (hide)
+    {
+        lpStartupInfo->wShowWindow = SW_HIDE;
+    }
 
     return fpCreateProcess(lpApplicationName,
                            lpCommandLine,

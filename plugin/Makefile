@@ -9,7 +9,7 @@ hidecmd-detour-$(PLATFORM).dll: hidecmd-detour-$(PLATFORM).obj
 	link /nologo /dll /out:$@ /opt:ref /opt:icf /ltcg $** libMinHook-$(PLATFORM)-v140-mt.lib user32.lib
 
 hidecmd-detour-$(PLATFORM).obj: detour.cpp
-	cl /nologo /O2 /MT /GL /GS- /c /Fo:$@ $**
+	cl /nologo /O2 /MT /GL /GS- /EHsc /c /Fo:$@ $**
 
 loader: hidecmd-loader-$(PLATFORM).dll clean-intermediate
 
